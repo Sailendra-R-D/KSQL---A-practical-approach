@@ -1,6 +1,9 @@
 # KSQL---A-practical-approach
 This repo houses a Taxi app implemented using Streaming SQL for Apache Kafka called [KSQL](https://www.confluent.io/product/ksql/)
 <br/><br/><br/>
+<h1>Taxi App</h1>
+![Taxi App Overview](https://github.com/Sailendra-R-D/KSQL---A-practical-approach/blob/master/taxi_overview.png)
+<br/><br/><br/>
 ![KSQL High Level Overview](https://github.com/Sailendra-R-D/KSQL---A-practical-approach/blob/master/ksql_hdl.png)
 <br/><br/><br/>
 ![KSQL Practical Overview](https://github.com/Sailendra-R-D/KSQL---A-practical-approach/blob/master/ksql_hdl1.png)
