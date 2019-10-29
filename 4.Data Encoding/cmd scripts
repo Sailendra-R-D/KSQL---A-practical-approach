@@ -1,0 +1,67 @@
+1)kafka-topics --zookeeper localhost:2181 --create --partitions 1 --replication-factor 1 --topic COMPLAINTS_CSV
+
+2)kafka-console-producer --broker-list localhost:9092 --topic COMPLAINTS_CSV << EOF
+  Alice, Bob and Carole, Bad driver, 43.10, true
+  EOF
+  
+3)CREATE STREAM complaints_csv (customer_name VARCHAR, complaint_type VARCHAR,
+  trip_cost DOUBLE, new_customer BOOLEAN) \
+  WITH (VALUE_FORMAT = 'DELIMITED', KAFKA_TOPIC = 'COMPLAINTS_CSV');
+
+4)kafka-topics --zookeeper localhost:2181 --create --partitions 1 --replicationfactor 1 --topic COMPLAINTS_JSON
+
+5)kafka-console-producer --broker-list localhost:9092 --topic COMPLAINTS_JSON << EOF
+  {"customer_name":"Alice, Bob and Carole", "complaint_type":"Bad driver",  "trip_cost": 22.40, "new_customer": true}
+  EOF
+  
+6)CREATE STREAM complaints_json (customer_name VARCHAR, complaint_type VARCHAR,
+  trip_cost DOUBLE, new_customer BOOLEAN) \
+  WITH (VALUE_FORMAT = 'JSON', KAFKA_TOPIC = 'COMPLAINTS_JSON');
+  
+7)kafka-topics --zookeeper localhost:2181 --create --partitions 1 --replicationfactor 1 --topic COMPLAINTS_AVRO
+
+8)kafka-avro-console-producer --broker-list localhost:9092 --topic COMPLAINTS_AVRO \
+  --property schema.registry.url=http://localhost:8089 \
+  --property value.schema='
+  {
+  "type": "record",
+  "name": "myrecord",
+   "fields":[{"name":"customer_name", "type":"string", "default":"name"}
+    ,{"name":"complaint_type", "type":"string", "default":"complaint"}
+    ,{"name":"trip_cost", "type":"float", "default":0.00}
+    ,{"name":"new_customer", "type":"boolean", "default":false}
+  ]
+  }' << EOF
+  {"customer_name":"Carol", "complaint_type":"Late arrival", "trip_cost": 19.60, "new_customer": false}
+  EOF
+ 
+9)-- Note no columns or data type specified
+  create stream complaints_avro with (kafka_topic='COMPLAINTS_AVRO', value_format='AVRO');
+
+10)curl -X GET http://localhost:8089/subjects/
+
+11)curl -X GET http://localhost:8089/subjects/COMPLAINTS_AVRO-value/versions/
+
+12)Evovle AVRO Schema
+  kafka-avro-console-producer --broker-list localhost:9092 --topic COMPLAINTS_AVRO \
+  --property schema.registry.url=http://localhost:8089 \
+  --property value.schema='
+  {
+  "type":"record","name":"myrecord",
+  "fields":[{"name":"customer_name", "type":"string", "default":"name"}
+    ,{"name":"complaint_type", "type":"string", "default":"complaint"}
+    ,{"name":"trip_cost", "type":"float", "default":0.00}
+    ,{"name":"new_customer", "type":"boolean", "default":false}
+    , {"name": "number_of_rides", "type": "int", "default" : 1}
+  ]
+  }' << EOF
+  {"customer_name":"Ed", "complaint_type":"Dirty car", "trip_cost": 29.10,"new_customer": false, "number_of_rides": 22}
+  EOF
+  
+13)curl -X GET http://localhost:8089/subjects/COMPLAINTS_AVRO-value/versions/
+
+14)describe complaints_avro;
+
+15)create stream complaints_avro_v2 with (kafka_topic='COMPLAINTS_AVRO', value_format='AVRO');
+
+16)describe complaints_avro_v2;
