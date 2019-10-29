@@ -22,3 +22,4 @@
  7)For deleting/dropping the stream, syntax is as below
  
     drop stream IF EXISTS user_profile_pretty DELETE TOPIC;
+
