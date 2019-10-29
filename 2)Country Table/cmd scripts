@@ -1,0 +1,6 @@
+1)kafka-topics --zookeeper localhost:2181 --create --partitions 1 --replication-factor 1 --topic COUNTRY-CSV
+
+2)kafka-console-producer --broker-list localhost:9092 --topic COUNTRY-CSV --property "parse.key=true" --property "key.separator=:"
+    ex: AU:AU,Australia
+
+3)create table COUNTRYTABLE(countrycode VARCHAR, countryname VARCHAR) with (kafka_topic ='COUNTRY-CSV', value_format='DELIMITED', key='countrycode');
