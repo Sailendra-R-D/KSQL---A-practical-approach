@@ -1,14 +1,24 @@
-kafka-topics --zookeeper localhost:2181 --create --partitions 1 --replication-factor 1 --topic USERPROFILE
+1)kafka-topics --zookeeper localhost:2181 --create --partitions 1 --replication-factor 1 --topic USERPROFILE
 
--->feed data with kafka console producer(manual approach)
+2)feed data with kafka console producer(manual approach)
 
+3)In KSQL,run the below
 
-IN KSQL
--------
-create STREAM USERPROFILE(userid INT, firstname VARCHAR, lastname VARCHAR, countrycode VARCHAR, rating DOUBLE) \
-with(value_format='JSON', KAFKA_TOPIC='USERPROFILE');
+    create STREAM USERPROFILE(userid INT, firstname VARCHAR, lastname VARCHAR, countrycode VARCHAR, rating DOUBLE) \
+    with(value_format='JSON', KAFKA_TOPIC='USERPROFILE');
 
+4)Using KSQL-datagen, generate a data stream by using below tool(avro schema added which will generate synthetic data)
 
---> Using KSQL-datagen, generate a data stream(avro schema added which will generate synthetic data)
-
-ksql-datagen schema=/home/sonraizen/confluent-5.3.1/datagen/userprofile.avro format=json topic=USERPROFILE key=userid maxInterval=1000
+    ksql-datagen schema=/home/sonraizen/confluent-5.3.1/datagen/userprofile.avro format=json topic=USERPROFILE key=userid maxInterval=1000
+  
+5)In order to manipulate stream,
+    
+    SELECT TIMESTAMPTOSTRING(rowtime, 'dd/MMM HH:mm') as createtime, firstname || ' ' || ucase(lastname) as full_name from USERPROFILE;
+   
+ 6)Also,Stream creation in Step3 can be automated by adding a ksql script and rnning as below
+ 
+    run script ./user_profile_pretty.ksql
+    
+ 7)For deleting/dropping the stream, syntax is as below
+ 
+    drop stream IF EXISTS user_profile_pretty DELETE TOPIC;
