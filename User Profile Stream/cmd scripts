@@ -1,0 +1,14 @@
+kafka-topics --zookeeper localhost:2181 --create --partitions 1 --replication-factor 1 --topic USERPROFILE
+
+-->feed data with kafka console producer(manual approach)
+
+
+IN KSQL
+-------
+create STREAM USERPROFILE(userid INT, firstname VARCHAR, lastname VARCHAR, countrycode VARCHAR, rating DOUBLE) \
+with(value_format='JSON', KAFKA_TOPIC='USERPROFILE');
+
+
+--> Using KSQL-datagen, generate a data stream(avro schema added which will generate synthetic data)
+
+ksql-datagen schema=/home/sonraizen/confluent-5.3.1/datagen/userprofile.avro format=json topic=USERPROFILE key=userid maxInterval=1000
