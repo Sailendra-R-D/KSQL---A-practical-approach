@@ -65,3 +65,9 @@
 15)create stream complaints_avro_v2 with (kafka_topic='COMPLAINTS_AVRO', value_format='AVRO');
 
 16)describe complaints_avro_v2;
+
+17)curl --silent -X GET http://localhost:8089/subjects/COMPLAINTS_AVRO-value/versions/{version-number}
+
+18)curl --silent -X GET http://localhost:8089/subjects/COMPLAINTS_AVRO-value/versions/latest
+
+
