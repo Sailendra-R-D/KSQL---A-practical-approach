@@ -3,4 +3,6 @@ This repo houses a Taxi app implemented using Streaming SQL for Apache Kafka cal
 
 Note: [Confluent CLI](https://docs.confluent.io/current/cli/index.html) was used for developing this app
 
+
+
 ![KSQL High Level Overview](https://github.com/Sailendra-R-D/KSQL---A-practical-approach/blob/master/ksql_hdl.png)
