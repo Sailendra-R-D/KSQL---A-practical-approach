@@ -9,7 +9,7 @@
 
 4)Using KSQL-datagen, generate a data stream by using below tool(avro schema added which will generate synthetic data)
 
-    ksql-datagen schema=/home/sonraizen/confluent-5.3.1/datagen/userprofile.avro format=json topic=USERPROFILE key=userid maxInterval=1000
+    ksql-datagen schema= ./userprofile.avro format=json topic=USERPROFILE key=userid maxInterval=1000
   
 5)In order to manipulate stream,
     
