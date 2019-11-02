@@ -4,3 +4,51 @@ write a UDF to calculare drive time based on
   distance to travel
   weather conditions
 
+LIST PROPERTIES;
+Property | Effective Value
+--------------------------------------------
+. . .
+ksql.extension.dir | ext <-- *** Look for this
+
+# Stop (just the) KSQL-Server
+# Create an ext (extensions) directory in ${CONFLUENT_HOME}/ext
+# build ksql-udf-taxi.jar as above and copy into ext directory
+# or to use the pre-compile one
+# Restart KSQL server
+
+list functions;
+
+Function Name | Type
+-------------------------------
+. . .
+SUM | AGGREGATE
+TAXI_WAIT | SCALAR <--- You need this one
+TIMESTAMPTOSTRING | SCALAR
+
+DESCRIBE FUNCTION TAXI_WAIT;
+
+Name        : TAXI_WAIT
+Overview    : Return expected wait time in minutes
+Type        : scalar
+Jar         : /home/sonraizen/confluent-5.3.1/ext/uda-create-1.0.jar
+Variations  :
+
+        Variation   : TAXI_WAIT(VARCHAR, DOUBLE)
+        Returns     : DOUBLE
+        Description : Given weather and distance return expected wait time in minutes
+
+describe ridetodest;
+
+select user
+, round(dist) as dist
+, weather_description
+, round(TAXI_WAIT(weather_description, dist)) as taxi_wait_min
+from ridetodest;
+
+select user
+|| ' will be waiting ' || cast(round(TAXI_WAIT(weather_description, dist)) as
+varchar)
+|| ' minutes for their trip of '
+|| cast(round(dist) as varchar) ||' km to ' || city_name
+|| ' where it is ' || weather_description
+from ridetodest;
