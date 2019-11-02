@@ -1,0 +1,30 @@
+Repartition
+-----------
+When you use KSQL to join streaming data, you must ensure that your streams and tables are co-partitioned,
+which means that input records on both sides of the join have the same configuration settings for partitions.
+
+kafka-topics --zookeeper localhost:2181 --create --partitions 2 --replication-factor 1 --topic DRIVER_PROFILE
+
+kafka-console-producer --broker-list localhost:9092 --topic DRIVER_PROFILE << EOF
+{"driver_name":"Mr. Speedy", "countrycode":"AU", "rating":2.4}
+EOF
+
+CREATE STREAM DRIVER_PROFILE (driver_name VARCHAR, countrycode VARCHAR, rating DOUBLE) \
+WITH (VALUE_FORMAT = 'JSON', KAFKA_TOPIC = 'DRIVER_PROFILE');
+
+select dp.driver_name, ct.countryname, dp.rating \
+from DRIVER_PROFILE dp \
+left join COUNTRYTABLE ct on ct.countrycode=dp.countrycode;
+
+Can't join DRIVER_PROFILE with COUNTRYTABLE since the number of partitions don't
+match. DRIVER_PROFILE partitions = 2; COUNTRYTABLE partitions = 1. Please
+repartition either one so that the number of partitions match.
+
+We can fix this by co-partitioning, use the PARTITION BY clause. At KSQL prompt
+
+create stream driverprofile_rekeyed with (partitions=1) as select * from
+DRIVER_PROFILE partition by driver_name;
+
+select dp2.driver_name, ct.countryname, dp2.rating
+from DRIVERPROFILE_REKEYED dp2
+left join COUNTRYTABLE ct on ct.countrycode=dp2.countrycode;
