@@ -1,1 +1,48 @@
+kafka-topics --zookeeper localhost:2181 --create --partitions 1 --replication-factor 1 --topic WEATHERNESTED
 
+cat demo-weather.json | kafka-console-producer --broker-list localhost:9092 --topic WEATHERNESTED
+
+SET 'auto.offset.reset'='earliest';
+
+-- stream to process nested json with data type STRUCT
+
+CREATE STREAM weather \
+(city STRUCT <name VARCHAR, country VARCHAR, latitude DOUBLE, longitude DOUBLE>, \
+description VARCHAR, \
+clouds BIGINT, \
+deg BIGINT, \
+humidity BIGINT, \
+pressure DOUBLE, \
+rain DOUBLE) \
+WITH (KAFKA_TOPIC='WEATHERNESTED', VALUE_FORMAT='JSON');
+
+--using indirection operator to access nested json values like city -> name
+
+SELECT city->name AS city_name, city->country AS city_country, \
+city->latitude as latitude, city->longitude as longitude, description, rain from weather;
+
+--Build rekeyed table
+
+create stream weatherraw with (value_format='AVRO') as SELECT city->name AS city_name, \
+city->country AS city_country, city->latitude as latitude, city ->longitude as longitude, \
+description, rain from weather ;
+
+list streams;
+
+describe extended weatherraw;
+
+create stream weatherrekeyed as select * from weatherraw partition by city_name;
+
+describe extended weatherrekeyed;
+
+create table weathernow with (kafka_topic='WEATHERREKEYED', value_format='AVRO', key='CITY_NAME');
+
+select * from weathernow;
+
+select * from weathernow where city_name = 'San Diego';
+
+Let's make it sunny! At UNIX prompt
+
+cat demo-weather-changes.json | kafka-console-producer --broker-list localhost:9092 --topic WEATHERNESTED
+
+select * from weathernow where city_name = 'San Diego';
